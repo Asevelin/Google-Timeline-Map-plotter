@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location History Plotter</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="top-bar">
+        <h2 style="margin: 0; font-size: 18px;">Location History Plotter</h2>
+        
+        <div id="top-buttons" style="display: none; gap: 10px; align-items: center;">
+            <button id="top-download-btn" class="top-btn" style="display: none;">Download Map</button>
+            <button id="restart-btn" class="top-btn" style="background: #dc3545;">Restart</button>
+            <button id="toggle-controls" class="top-btn">Hide Options</button>
+        </div>
+    </div>
+
+    <!-- Overlay for initial state -->
+    <div id="overlay">
+        <!-- Center Upload Box -->
+        <div id="center-upload">
+            <h3>Upload Google Timeline</h3>
+            <div id="drop-zone">
+                <p>Drag & Drop Timeline.json here<br>or click to browse</p>
+                <input type="file" id="file-input" accept=".json" style="display: none;">
+            </div>
+            <div id="upload-status"></div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" style="display: none;">
+        <div class="loading-box">
+            <h3>Generating Map...</h3>
+            <p>Please wait, this may take a moment.</p>
+        </div>
+    </div>
+
+    <div id="controls" style="display: none;">
+        <div class="control-group">
+            <label>Map Provider:</label>
+            <select id="map-provider">
+                <option value="esri-dark" selected>Esri World Dark Gray</option>
+                <option value="esri">Esri World Gray</option>
+                <option value="osm">OpenStreetMap</option>
+                <option value="carto">CartoDB Dark</option>
+                <option value="geoq">GeoQ (China)</option>
+            </select>
+        </div>
+
+        <div id="map-controls">
+            <div class="control-group">
+                <label>Color Mode:</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                    <label style="font-weight: normal;"><input type="radio" name="color-mode" value="multi"> Multi-Color</label>
+                    <label style="font-weight: normal;"><input type="radio" name="color-mode" value="single" checked> Single Color</label>
+                </div>
+                
+                <div id="single-color-picker" style="display: block;">
+                    <label>Select Color: <input type="color" id="global-color" value="#FFFF66"></label>
+                </div>
+
+                <div id="multi-color-list" style="max-height: 150px; overflow-y: auto; border: 1px solid #eee; padding: 5px; display: none;">
+                    <!-- Year color pickers will be populated here -->
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Select Year:</label>
+                <select id="year-select">
+                    <option value="">Select a year</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Dot Size: <span id="dot-size-value">0.5</span></label>
+                <input type="range" id="dot-size" min="0.5" max="10" value="0.5" step="0.5">
+            </div>
+
+            <div class="control-group">
+                <button id="download-map">Download Map</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
