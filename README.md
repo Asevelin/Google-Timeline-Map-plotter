@@ -4,7 +4,7 @@ A web application to visualize your Google Takeout Location History (`Timeline.j
 
 ![Map Preview](backend/template.png)
 
-## 🛠️ Installation & Local Development
+## Installation & Local Development
 
 1.  **Prerequisites**:
     *   Python 3.8+
@@ -23,12 +23,7 @@ A web application to visualize your Google Takeout Location History (`Timeline.j
 4.  **Access**:
     Open your browser and navigate to `http://127.0.0.1:5000`.
 
-## ☁️ Deployment
-
-This project is configured for easy deployment on platforms like **Render** or **Heroku**.
-
-
-## 📖 Usage
+## Usage
 
 1.  **Get your Data**:
     *   Go to [Google Takeout](https://takeout.google.com/).
@@ -41,14 +36,9 @@ This project is configured for easy deployment on platforms like **Render** or *
     *   Wait for the processing to finish (large files may take a moment).
     *   Use the controls to change colors, map styles, and dot sizes.
 4.  **Save**:
-    *   The map is automatically saved to the server upon rendering.
     *   Click "Download Map" to save a copy to your device.
 
 
-## 🔒 Privacy Note
 
-*   **Source JSON**: Deleted immediately after parsing.
-*   **Processed Data**: Deleted automatically after 1 hour.
-*   **Maps**: Deleted automatically after 1 hour.
 
 
