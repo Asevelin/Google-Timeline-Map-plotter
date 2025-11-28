@@ -296,7 +296,9 @@ function handleFile(file) {
             autoMapFilename = data.auto_map;
             populateYears(data.years);
             // Auto load all years
-            yearSelect.value = 'all';
+            // Select 'all' option
+            const allOption = yearSelect.querySelector('option[value="all"]');
+            if (allOption) allOption.selected = true;
             loadAllYears();
         }
     })
@@ -307,7 +309,7 @@ function handleFile(file) {
 }
 
 function populateYears(years) {
-    yearSelect.innerHTML = '<option value="">Select a year</option>';
+    yearSelect.innerHTML = '';
     
     // Add All Years option
     const allOption = document.createElement('option');
@@ -332,26 +334,31 @@ function populateYears(years) {
 }
 
 yearSelect.addEventListener('change', (e) => {
-    const filename = e.target.value;
-    if (filename === 'all') {
-        loadAllYears();
-    } else if (filename) {
-        loadYearData(filename);
+    const selectedOptions = Array.from(e.target.selectedOptions);
+    const values = selectedOptions.map(opt => opt.value);
+    
+    // Logic: If 'all' is selected, it overrides others? 
+    // Or if 'all' is clicked, we select all?
+    // Let's keep it simple: if 'all' is in the list, we load all.
+    // If specific years are in the list, we load those.
+    
+    if (values.includes('all')) {
+        // If 'all' is selected, we load all available years
+        // We can get all values from the options excluding 'all'
+        const allFiles = Array.from(yearSelect.options)
+            .map(opt => opt.value)
+            .filter(val => val !== 'all');
+        loadYears(allFiles, false); // Don't fit bounds on selection change
+    } else if (values.length > 0) {
+        loadYears(values, false); // Don't fit bounds on selection change
     } else {
         currentLayerGroup.clearLayers();
     }
 });
 
-function loadAllYears() {
-    uploadStatus.textContent = 'Loading all years...';
+function loadYears(files, shouldFitBounds = true) {
+    uploadStatus.textContent = `Loading ${files.length} years...`;
     currentLayerGroup.clearLayers();
-    
-    // Fetch list of years again to be safe, or we could pass it around.
-    // Since we populated the dropdown, we know the files exist, but let's just fetch them.
-    // We can iterate over the options in the select, skipping the first two (placeholder and 'all').
-    
-    const options = Array.from(yearSelect.options);
-    const files = options.slice(2).map(opt => opt.value);
     
     const promises = files.map(filename => 
         fetch(`/data/${filename}`).then(res => res.text()).then(text => ({filename, text}))
@@ -362,46 +369,51 @@ function loadAllYears() {
             results.forEach(result => {
                 plotData(result.text, result.filename, false);
             });
-            uploadStatus.textContent = 'Loaded all years';
+            uploadStatus.textContent = 'Loaded selected years';
             
             // Fit bounds after all points are added
             if (currentLayerGroup.getLayers().length > 0) {
-                 // Collect all latlngs to fit the map bounds
-                 const latlngs = [];
-                 currentLayerGroup.eachLayer(layer => {
-                     if (layer.getLatLng) {
-                         latlngs.push(layer.getLatLng());
+                 if (shouldFitBounds) {
+                     // Collect all latlngs to fit the map bounds
+                     const latlngs = [];
+                     currentLayerGroup.eachLayer(layer => {
+                         if (layer.getLatLng) {
+                             latlngs.push(layer.getLatLng());
+                         }
+                     });
+                     
+                     if (latlngs.length > 0) {
+                         map.fitBounds(L.latLngBounds(latlngs));
                      }
-                 });
-                 
-                 if (latlngs.length > 0) {
-                     map.fitBounds(L.latLngBounds(latlngs));
                  }
                  
-                 // Trigger Auto Save
+                 // Trigger Auto Save if this was the initial auto-load
                  if (autoMapFilename) {
                      setTimeout(() => {
                          autoSaveMap(autoMapFilename);
+                         // Reset autoMapFilename so we don't auto-save on every manual change
+                         autoMapFilename = null; 
                      }, 2000); // Wait for render
                  }
             }
         })
         .catch(err => {
             console.error(err);
-            uploadStatus.textContent = 'Error loading all years';
+            uploadStatus.textContent = 'Error loading years';
         });
 }
 
+function loadAllYears() {
+    // Legacy wrapper, just in case
+    const allFiles = Array.from(yearSelect.options)
+            .map(opt => opt.value)
+            .filter(val => val !== 'all');
+    loadYears(allFiles, true); // Fit bounds on initial load
+}
+
 function loadYearData(filename) {
-    uploadStatus.textContent = `Loading data for ${filename}...`;
-    
-    fetch(`/data/${filename}`)
-    .then(response => response.text())
-    .then(csvText => {
-        plotData(csvText, filename, true);
-        uploadStatus.textContent = `Loaded ${filename}`;
-    })
-    .catch(err => console.error(err));
+    // Legacy wrapper
+    loadYears([filename]);
 }
 
 function plotData(csvText, filename, clear = true) {
